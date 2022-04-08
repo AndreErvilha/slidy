@@ -4,23 +4,20 @@ import 'package:args/command_runner.dart';
 import 'package:slidy/slidy.dart';
 import 'package:slidy/src/core/prints/prints.dart';
 
-import '../../templates/repository.dart';
+import '../../templates/data_source.dart';
 import '../../templates/test.dart';
 import '../../utils/template_file.dart';
 import '../../utils/utils.dart';
 import '../command_base.dart';
-import '../generate_command.dart';
 import '../install_command.dart';
 
-class GenerateRepositorySubCommand extends CommandBase {
+class GenerateDataSourceSubCommand extends CommandBase {
   @override
-  final name = 'repository';
+  final name = 'datasource';
   @override
-  final description = 'Creates a Repository';
+  final description = 'Creates a Data Source file';
 
-  GenerateRepositorySubCommand() {
-    argParser.addFlag('datasource',
-        abbr: 'd', negatable: false, help: 'Create datasource file');
+  GenerateDataSourceSubCommand() {
     argParser.addFlag('notest',
         abbr: 'n', negatable: false, help: 'Don`t create file test');
   }
@@ -30,28 +27,35 @@ class GenerateRepositorySubCommand extends CommandBase {
     final pattern = argResults?.rest.single ?? '';
 
     final templateFile = TemplateFile(
-        pattern: pattern, path: 'infra/repositories', type: 'repository');
+        pattern: pattern, path: 'external/datasources', type: 'datasource');
+
+    if (!await checkDependencyIsExist('dio')) {
+      var command = CommandRunner('slidy', 'CLI')..addCommand(InstallCommand());
+      await command.run(['install', 'dio@4.0.0-beta6']);
+    }
 
     var result = await Slidy.instance.template.createFile(
-        info: TemplateInfo(
-            yaml: repositoryFile,
-            destiny: templateFile.interfaceFileFrom('domain/repositories'),
-            key: 'i_repository',
-            args: [
-          templateFile.fileName.pascalCase,
-        ]));
+      info: TemplateInfo(
+        yaml: data_source,
+        destiny: templateFile.interfaceFileFrom('infra/datasources'),
+        key: 'i_data_source',
+        args: [templateFile.fileName.pascalCase],
+      ),
+    );
     execute(result);
 
     result = await Slidy.instance.template.createFile(
       info: TemplateInfo(
-          yaml: repositoryFile,
-          destiny: templateFile.file,
-          key: 'repository',
-          args: [
-            templateFile.fileName.pascalCase,
-            templateFile.interfaceImportFrom('domain/repositories'),
-          ]),
+        yaml: data_source,
+        destiny: templateFile.file,
+        key: 'data_source',
+        args: [
+          templateFile.fileName.pascalCase,
+          templateFile.interfaceImportFrom('infra/datasources'),
+        ],
+      ),
     );
+
     execute(result);
 
     if (!argResults!['notest']) {
@@ -60,6 +64,7 @@ class GenerateRepositorySubCommand extends CommandBase {
           ..addCommand(InstallCommand());
         await command.run(['install', 'get_it']);
       }
+
       if (!await checkDependencyIsExist('mocktail', true)) {
         var command = CommandRunner('slidy', 'CLI')
           ..addCommand(InstallCommand());
@@ -67,24 +72,21 @@ class GenerateRepositorySubCommand extends CommandBase {
       }
 
       result = await Slidy.instance.template.createFile(
-          info: TemplateInfo(
-              yaml: test,
-              destiny: templateFile.testFile,
-              key: 'test',
-              args: [
+        info: TemplateInfo(
+          yaml: test,
+          destiny: templateFile.testFile,
+          key: 'test',
+          args: [
             templateFile.fileName.pascalCase,
             templateFile.import,
-            templateFile.interfaceImportFrom('domain/repositories'),
+            templateFile.interfaceImportFrom('infra/datasources'),
             'class Mock${templateFile.fileName.pascalCase} extends Mock implements I${templateFile.fileName.pascalCase} {}',
             'GetIt.I.registerSingleton<I${templateFile.fileName.pascalCase}>(Mock${templateFile.fileName.pascalCase}());'
-          ]));
-      execute(result);
-    }
+          ],
+        ),
+      );
 
-    if (argResults!['datasource']) {
-      var command = CommandRunner('slidy', 'CLI')
-        ..addCommand(GenerateCommand());
-      await command.run(['generate', 'datasource', pattern]);
+      execute(result);
     }
   }
 
@@ -92,7 +94,7 @@ class GenerateRepositorySubCommand extends CommandBase {
   String? get invocationSuffix => null;
 }
 
-class GenerateRepositoryAbbrSubCommand extends GenerateRepositorySubCommand {
+class GenerateDataSourceAbbrSubCommand extends GenerateDataSourceSubCommand {
   @override
-  final name = 'r';
+  final name = 'd';
 }

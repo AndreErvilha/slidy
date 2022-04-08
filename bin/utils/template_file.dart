@@ -1,41 +1,79 @@
 import 'dart:io';
 
 import 'package:recase/recase.dart';
-import 'package:slidy/slidy.dart';
-import 'package:slidy/src/core/interfaces/yaml_service.dart';
-import 'package:yaml/yaml.dart';
+
+import 'utils.dart';
 
 class TemplateFile {
   late final File file;
-  late final File fileTest;
-  late final String fileName;
-  late final fileNameWithUppeCase;
-  final String packageName;
-  late final import;
+  late final String _fileName;
+  late final String feature;
+  late final String name;
+  late final String type;
+  late final String path;
+  late final String packageName;
 
-  TemplateFile._(String path, String type, this.packageName) {
-    file = File('lib/app/$path$type.dart');
-    fileTest = File('test/app/$path${type}_test.dart');
-    fileName = ReCase(Uri.parse(path).pathSegments.last).camelCase;
-    fileNameWithUppeCase = fileName[0].toUpperCase() + fileName.substring(1);
-    import = 'import \'package:$packageName/app/$path$type.dart\';';
+  TemplateFile({
+    required pattern,
+    required this.path,
+    required this.type,
+    isInterface = false,
+    isTest = false,
+  }) {
+    final list = pattern.split('@');
+    feature = list.first;
+    name = list.last;
+
+    _fileName = [
+      if (isInterface) 'i',
+      name,
+      type,
+      if (isTest) 'test',
+    ].join('_');
+
+    final finalPath = ['lib/features', feature, path].join('/');
+    file = File('$finalPath/$_fileName.dart');
+
+    packageName = getPackageName();
   }
 
-  static Future<TemplateFile> getInstance(String path, String? type) async {
-    final pubspec = Slidy.instance.get<YamlService>();
-    return TemplateFile._(path, type == null ? '' : '_$type',
-        (pubspec.getValue(['name']))?.value);
+  String get import {
+    final list = file.path.split('/');
+    list.removeAt(0);
+    final finalPath = list.join('/');
+
+    return 'import \'package:$packageName/$finalPath\';';
   }
 
-  Future<bool> checkDependencyIsExist(String dependency,
-      [bool isDev = false]) async {
-    try {
-      final dependenciesLine = isDev ? 'dev_dependencies' : 'dependencies';
-      final pubspec = Slidy.instance.get<YamlService>();
-      final map = (pubspec.getValue([dependenciesLine]))?.value as YamlMap;
-      return map.containsKey(dependency);
-    } catch (e) {
-      return false;
-    }
+  String interfaceImportFrom(String path) {
+    final list = interfaceFileFrom(path).path.split('/');
+    list.removeAt(0);
+    final finalPath = list.join('/');
+
+    return 'import \'package:$packageName/$finalPath\';';
   }
+
+  String get interfaceFileName => [
+        'i',
+        name,
+        type,
+      ].join('_');
+
+  String get testFileName => [
+        name,
+        type,
+        'test',
+      ].join('_');
+
+  File interfaceFileFrom(String path) {
+    final finalPath = ['lib/features', feature, path].join('/');
+    return File('$finalPath/$interfaceFileName.dart');
+  }
+
+  File get testFile {
+    final finalPath = ['test/features', feature, path].join('/');
+    return File('$finalPath/$testFileName.dart');
+  }
+
+  ReCase get fileName => ReCase(_fileName);
 }

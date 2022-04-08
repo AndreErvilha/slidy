@@ -10,7 +10,6 @@ import 'commands/install_command.dart';
 import 'commands/run_command.dart';
 import 'commands/start_command.dart';
 import 'commands/uninstall_command.dart';
-import 'commands/upgrade_command.dart';
 
 Future main(List<String> arguments) async {
   final runner = configureCommand(arguments);
