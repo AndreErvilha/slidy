@@ -374,7 +374,7 @@ class YamlEditor {
 
     final nodesToRemove = list.nodes.getRange(index, index + deleteCount);
 
-    /// Perform addition of elements before removal to avoid scenarioes where
+    /// Perform addition of elements before removal to avoid scenarios where
     /// a block list gets emptied out to {} to avoid changing collection styles
     /// where possible.
 

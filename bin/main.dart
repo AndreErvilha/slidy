@@ -3,6 +3,10 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:io/io.dart';
+import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/capture.dart';
+import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/generate.dart';
+import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/install.dart';
+import 'package:slidy/src/modules/pipelines_ervilha/modules/pipeline/pipeline.dart';
 import 'package:slidy/src/version.dart';
 
 import 'commands/generate_command.dart';
@@ -10,7 +14,6 @@ import 'commands/install_command.dart';
 import 'commands/run_command.dart';
 import 'commands/start_command.dart';
 import 'commands/uninstall_command.dart';
-import 'commands/upgrade_command.dart';
 
 Future main(List<String> arguments) async {
   final runner = configureCommand(arguments);
@@ -50,6 +53,13 @@ Future executeCommand(CommandRunner runner, List<String> arguments) {
 }
 
 CommandRunner configureCommand(List<String> arguments) {
+  final pipe = Pipeline()
+    ..addCommand(Capture())
+    ..addCommand(Install())
+    ..addCommand(Generate())
+    ..loadPipe(File(
+        '/Users/andreervilha/StudioProjects/slidy/lib/src/modules/pipelines_ervilha/pipe.yaml'));
+
   var runner =
       CommandRunner('slidy', 'CLI package manager and template for Flutter.')
         ..addCommand(InstallCommand())
@@ -59,7 +69,10 @@ CommandRunner configureCommand(List<String> arguments) {
         ..addCommand(GenerateCommand())
         ..addCommand(GenerateCommandAbbr())
         ..addCommand(RunCommand());
-  //   ..addCommand(UpgradeCommand());
+
+  for (var command in pipe.cliCommands.values) {
+    runner.addCommand(command);
+  }
 
   runner.argParser.addFlag('version', abbr: 'v', negatable: false);
   return runner;
