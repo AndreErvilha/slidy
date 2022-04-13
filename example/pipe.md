@@ -1,8 +1,8 @@
 **`pipe.yaml`**
 ```yaml
 pipeline_example:  
- name: usecase1
- abbr: w
+ name: usecase
+ abbr: u
  description: 'Creates an usecase in a custom template'
 ```
 

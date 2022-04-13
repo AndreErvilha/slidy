@@ -87,12 +87,12 @@ class Pipeline {
       final steps = Utils.parseValues(result);
 
       if (steps is ObjectValue) {
-        addCliCommand(
-          CliCommands(
-            world,
-            steps,
-          ),
+        final cli = CliCommand(
+          world,
+          steps,
         );
+        addCliCommand(cli);
+        addCliCommand(cli.abbrCommand);
       }
     }
   }
@@ -143,7 +143,7 @@ class Pipeline {
   }
 }
 
-class CliCommands extends args.Command {
+class CliCommand extends args.Command {
   final World _world;
   final ObjectValue _declaration;
   late ListValue _execute;
@@ -155,7 +155,7 @@ class CliCommands extends args.Command {
   late String _description;
   late String _abbr;
 
-  CliCommands(
+  CliCommand(
     this._world,
     this._declaration,
   ) {
@@ -203,9 +203,18 @@ class CliCommands extends args.Command {
     }
   }
 
+  CliCommand get abbrCommand => AbbrCommand(_world, _declaration);
+
   @override
   String get description => _description;
 
   @override
   String get name => _name;
+}
+
+class AbbrCommand extends CliCommand {
+  AbbrCommand(world, declaration) : super(world, declaration);
+
+  @override
+  String get name => _abbr;
 }
