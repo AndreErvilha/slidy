@@ -40,5 +40,4 @@ scripts:
 
 
 executables:
-#  slidy: main
-  dia: main
+  slidy: main

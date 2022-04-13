@@ -15,6 +15,16 @@ import 'commands/uninstall_command.dart';
 Future main(List<String> arguments) async {
   final runner = configureCommand(arguments);
 
+  final file = File('pipe.md');
+
+  if (await file.exists()) {
+    final pipe = Pipeline()..loadMarkdown(file);
+
+    for (var command in pipe.cliCommands.values) {
+      runner.addCommand(command);
+    }
+  }
+
   var hasCommand = runner.commands.keys.any((x) => arguments.contains(x));
 
   if (hasCommand) {
@@ -50,10 +60,6 @@ Future executeCommand(CommandRunner runner, List<String> arguments) {
 }
 
 CommandRunner configureCommand(List<String> arguments) {
-  final pipe = Pipeline()
-    ..loadYaml(File(
-        '/Users/andreervilha/StudioProjects/slidy/lib/src/modules/pipelines_ervilha/pipe.yaml'));
-
   var runner =
       CommandRunner('slidy', 'CLI package manager and template for Flutter.')
         ..addCommand(InstallCommand())
@@ -63,10 +69,6 @@ CommandRunner configureCommand(List<String> arguments) {
         ..addCommand(GenerateCommand())
         ..addCommand(GenerateCommandAbbr())
         ..addCommand(RunCommand());
-
-  for (var command in pipe.cliCommands.values) {
-    runner.addCommand(command);
-  }
 
   runner.argParser.addFlag('version', abbr: 'v', negatable: false);
   return runner;

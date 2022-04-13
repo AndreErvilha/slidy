@@ -1,3 +1,4 @@
+import 'package:recase/recase.dart';
 import 'package:slidy/src/modules/pipelines_ervilha/modules/core/domain/entities/world.dart';
 
 import 'domain/entities/objects.dart';
@@ -66,7 +67,7 @@ class Utils {
   }
 
   static String eval(TextValue value, World world) {
-    final pattern = RegExp(r'{{(((?!{)[\s\S](?<!}))*)}}');
+    final pattern = RegExp(r'{{(?!{{)(?!\|)([A-z]*)(?:\|([\S]*))?(?<!}})}}');
 
     var text = value.value;
     final matches = pattern.allMatches(text);
@@ -74,13 +75,49 @@ class Utils {
     for (var match in matches) {
       final objName = match.group(1)!;
       final from = match.group(0)!;
+      final reCase = match.group(2);
 
-      final to = getArg<TextValue>(objName, world).value;
+      var to = getArg<TextValue>(objName, world).value;
+
+      if (to.contains(pattern)) to = eval(TextValue(to), world);
+
+      if (reCase != null) {
+        switch (reCase) {
+          case 'pascalCase':
+            to = ReCase(to).pascalCase;
+            break;
+          case 'camelCase':
+            to = ReCase(to).camelCase;
+            break;
+          case 'constantCase':
+            to = ReCase(to).constantCase;
+            break;
+          case 'dotCase':
+            to = ReCase(to).dotCase;
+            break;
+          case 'headerCase':
+            to = ReCase(to).headerCase;
+            break;
+          case 'paramCase':
+            to = ReCase(to).paramCase;
+            break;
+          case 'pathCase':
+            to = ReCase(to).pathCase;
+            break;
+          case 'sentenceCase':
+            to = ReCase(to).sentenceCase;
+            break;
+          case 'snakeCase':
+            to = ReCase(to).snakeCase;
+            break;
+          case 'titleCase':
+            to = ReCase(to).titleCase;
+            break;
+        }
+      }
 
       text = text.replaceFirst(from, to);
     }
-
-    if (text.contains(pattern)) return eval(TextValue(text), world);
 
     return text;
   }

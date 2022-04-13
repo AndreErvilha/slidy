@@ -102,7 +102,7 @@ class Pipeline {
         // capture name of script
         r'(?:\*\*`(?<script_name>(?!\*\*`)[\S]*(?<!`\*\*))`\*\**)?[\s]?'
         // capture yaml
-        r'```yaml(?<yaml>(?!```)[\s\S][^`]*(?<!```))```';
+        r'```yaml(?<yaml>(?!```)[\s\S][^`]*(?<!```))[\S]*[\n]```';
     final pattern = RegExp(regex);
 
     final values = pattern.allMatches(markdown);
@@ -124,7 +124,7 @@ class Pipeline {
         // capture name of script
         r'(?:\*\*`(?<template_name>(?!\*\*`)[\S]*(?<!`\*\*))`\*\**)?[\s]?'
         // capture yaml
-        r'```dart(?<dart>(?!```)[\s\S][^`]*(?<!```))```';
+        r'```dart[\s]*\n(?<dart>(?!```)[\s\S][^`]*(?<!```))```';
     final pattern = RegExp(regex);
 
     final values = pattern.allMatches(markdown);
@@ -186,9 +186,10 @@ class CliCommands extends args.Command {
 
   @override
   FutureOr run() async {
-    final rest = argResults?.rest.single ?? '';
-
-    _world.addObject(ObjectValue('rest', TextValue(rest)));
+    final rest = argResults?.rest;
+    if (rest != null && rest.isNotEmpty) {
+      _world.addObject(ObjectValue('rest', TextValue(rest.single)));
+    }
 
     for (var command in _execute.value) {
       command as ObjectValue;
