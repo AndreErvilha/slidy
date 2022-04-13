@@ -1,4 +1,3 @@
-import '../../../../../../slidy.dart';
 import '../domain/entities/command.dart';
 import '../domain/entities/objects.dart';
 import '../domain/entities/world.dart';
@@ -27,7 +26,7 @@ class Capture implements Command {
       final text = values.namedGroup(group);
       final obj = ObjectValue(group, TextValue(text!));
       world.addObject(obj);
-      success('$name => Add var $text');
+      //success('$name => Add var $text');
     }
   }
 }

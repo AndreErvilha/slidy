@@ -2,10 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:args/command_runner.dart' as args;
+import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/capture.dart';
+import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/generate.dart';
 import 'package:slidy/src/modules/pipelines_ervilha/modules/core/domain/entities/objects.dart';
-import 'package:yaml/yaml.dart';
+import 'package:yaml/yaml.dart' as _yaml;
 
-import '../../../../../slidy.dart';
+import '../core/commands/install.dart';
+import '../core/commands/print.dart';
 import '../core/domain/entities/command.dart';
 import '../core/domain/entities/world.dart';
 import '../core/utils.dart';
@@ -15,7 +18,13 @@ class Pipeline {
 
   final cliCommands = <String, args.Command>{};
 
-  Pipeline() : world = World();
+  Pipeline() : world = World() {
+    addCommand(Capture());
+    addCommand(Generate());
+    addCommand(Install());
+    addCommand(Print());
+    addCommand(Capture());
+  }
 
   void addCommand(Command command) => world.addCommand(command);
 
@@ -23,8 +32,8 @@ class Pipeline {
     cliCommands.putIfAbsent(command.name, () => command);
   }
 
-  Future<void> loadPipe(File file) async {
-    final YamlMap result = loadYaml(file.readAsStringSync());
+  void loadYaml(File file) async {
+    final _yaml.YamlMap result = _yaml.loadYaml(file.readAsStringSync());
 
     final steps = Utils.parseValues(result);
 
@@ -93,7 +102,7 @@ class CliCommands extends args.Command {
         await _world.commands[command.name]?.call(_world, command);
       } else if (!_world.objects.containsKey(command.name)) {
         _world.addObject(command);
-        success('pipeline => Add var ${command.name}');
+        //success('pipeline => Add var ${command.name}');
       }
     }
   }

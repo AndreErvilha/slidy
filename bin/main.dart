@@ -3,9 +3,6 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:args/command_runner.dart';
 import 'package:io/io.dart';
-import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/capture.dart';
-import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/generate.dart';
-import 'package:slidy/src/modules/pipelines_ervilha/modules/core/commands/install.dart';
 import 'package:slidy/src/modules/pipelines_ervilha/modules/pipeline/pipeline.dart';
 import 'package:slidy/src/version.dart';
 
@@ -54,10 +51,7 @@ Future executeCommand(CommandRunner runner, List<String> arguments) {
 
 CommandRunner configureCommand(List<String> arguments) {
   final pipe = Pipeline()
-    ..addCommand(Capture())
-    ..addCommand(Install())
-    ..addCommand(Generate())
-    ..loadPipe(File(
+    ..loadYaml(File(
         '/Users/andreervilha/StudioProjects/slidy/lib/src/modules/pipelines_ervilha/pipe.yaml'));
 
   var runner =

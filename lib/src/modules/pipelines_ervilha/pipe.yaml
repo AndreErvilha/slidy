@@ -16,13 +16,14 @@ pipeline_example:
       abbr: n
       negatable: false
   execute:
-    capture:
-      text: '{{rest}}'
-      regex: '(?<feature>[A-z]*)@(?<name>[A-z]*)'
-    file_name: '{{name}}_usecase.dart'
-    file_path: 'lib/{{feature}}/domain/usecase/{{file_name}}.dart'
-    install:
-      - get_it
-    generate:
-      template: usecase
-      path: '{{file_path}}'
+    - capture:
+        text: '{{rest}}'
+        regex: '(?<feature>[A-z]*)@(?<name>[A-z]*)'
+    - file_name: '{{name}}_usecase'
+    - file_path: 'lib/{{feature}}/domain/usecase/{{file_name}}.dart'
+    - install:
+        - get_it
+    - print: '{{file_path}}'
+    - generate:
+        template: usecase
+        path: '{{file_path}}'

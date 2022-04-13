@@ -1,4 +1,3 @@
-import 'package:slidy/slidy.dart';
 import 'package:slidy/src/modules/pipelines_ervilha/modules/core/domain/entities/command.dart';
 import 'package:slidy/src/modules/pipelines_ervilha/modules/core/domain/entities/objects.dart';
 import 'package:slidy/src/modules/pipelines_ervilha/modules/core/domain/entities/world.dart';
@@ -11,7 +10,7 @@ class Install implements Command {
 
     for (var dependency in dependencies.value) {
       dependency as TextValue;
-      success('$name => ${dependency.value}');
+      //success('$name => ${dependency.value}');
     }
   }
 
